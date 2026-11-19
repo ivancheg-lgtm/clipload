@@ -1,6 +1,6 @@
 # ClipLoad — Cloudflare Workers
 
-Проект Next.js с адаптером OpenNext для Cloudflare Workers.
+Проект Next.js 14.2.35 с адаптером OpenNext для Cloudflare Workers. Типы Cloudflare генерируются Wrangler, отдельный пакет @cloudflare/workers-types не требуется.
 
 ## Публикация через GitHub + Cloudflare
 
@@ -36,3 +36,8 @@ npm run deploy
 
 - Cloudflare: https://developers.cloudflare.com/workers/framework-guides/web-apps/opennext/
 - Workers Free limits: https://developers.cloudflare.com/workers/platform/limits/
+
+
+## Если ранее сборка падала на установке пакетов
+
+Удалите старый `bun.lock` / `bun.lockb` из корня репозитория, если он был создан неудачной установкой, затем закоммитьте исправленный `package.json`. Cloudflare заново разрешит зависимости.
