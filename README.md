@@ -1,20 +1,40 @@
 # ClipLoad — Cloudflare Workers
 
-Проект Next.js 14.2.35 с адаптером OpenNext для Cloudflare Workers. Типы Cloudflare генерируются Wrangler, отдельный пакет @cloudflare/workers-types не требуется.
+ClipLoad — небольшой Next.js-сайт для проверки YouTube-ссылок и локального сохранения готовых MP4-файлов.
+
+## Возможности
+
+- Проверяет формат YouTube-ссылки на сервере.
+- Для собственных роликов показывает официальный путь скачивания через YouTube Studio.
+- Позволяет выбрать готовый файл `.mp4` на устройстве, задать имя и сохранить его под новым именем.
+- Локальный MP4-файл не загружается на сервер: браузер создаёт временную ссылку на выбранный файл.
+
+## Ограничения
+
+- ClipLoad не скачивает и не извлекает видео непосредственно с YouTube.
+- ClipLoad не обходит ограничения YouTube и не скачивает чужие видео.
+- Локальный инструмент пока принимает только готовые файлы `.mp4`. Он не конвертирует MP3, MOV, WebM или другие форматы в MP4.
 
 ## Публикация через GitHub + Cloudflare
 
-1. Распакуйте архив.
-2. Загрузите **содержимое папки** в ваш GitHub-репозиторий `clipload` (в корень репозитория).
-3. Откройте https://dash.cloudflare.com/ и войдите в аккаунт.
-4. Перейдите в **Workers & Pages → Create → Import a repository** (названия пунктов интерфейса могут немного отличаться).
-5. Подключите GitHub, выберите репозиторий `clipload`.
-6. Для Next.js Workers выберите конфигурацию по Wrangler-файлу в репозитории. Если Cloudflare предложит автоматически определить фреймворк, проверьте, что используется OpenNext.
-7. После установки зависимостей Cloudflare соберёт и опубликует Worker. Публичный адрес будет вида `https://clipload.<ваш-поддомен>.workers.dev`.
+Для существующего Cloudflare Worker достаточно заменить файлы проекта в корне GitHub-репозитория и отправить commit. Существующие настройки сборки оставьте такими:
 
-## Локальная публикация (альтернатива)
+- Build command: `npx opennextjs-cloudflare build`
+- Deploy command: `npx opennextjs-cloudflare deploy`
+
+Cloudflare должен устанавливать зависимости из `package.json`. В проекте используется Next.js 16 и React 19.
+
+## Локальный запуск
 
 Требуется Node.js 20+:
+
+```bash
+npm install
+npm run dev
+```
+
+## Публикация вручную
+
 ```bash
 npm install
 npx wrangler login
@@ -22,22 +42,9 @@ npm run preview
 npm run deploy
 ```
 
-## Что уже работает
+## Технологии
 
-- Адаптивный интерфейс ClipLoad.
-- Переключатель MP4 / MP3.
-- Серверная проверка домена YouTube и формата запроса.
-
-## Чего пока нет
-
-Этот проект пока **не скачивает и не конвертирует** ролики YouTube. API честно сообщает пользователю о доступных официальных способах получить собственный контент через YouTube Studio. Cloudflare Workers — хостинг приложения, а не видеоконвертер; у Workers есть ограничения по CPU и ресурсам. Соблюдайте условия YouTube и права правообладателей.
-
-## Документация
-
-- Cloudflare: https://developers.cloudflare.com/workers/framework-guides/web-apps/opennext/
-- Workers Free limits: https://developers.cloudflare.com/workers/platform/limits/
-
-
-## Если ранее сборка падала на установке пакетов
-
-Удалите старый `bun.lock` / `bun.lockb` из корня репозитория, если он был создан неудачной установкой, затем закоммитьте исправленный `package.json`. Cloudflare заново разрешит зависимости.
+- Next.js 16
+- React 19
+- OpenNext for Cloudflare
+- Cloudflare Workers
