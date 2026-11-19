@@ -1,23 +1,32 @@
 import {NextResponse} from 'next/server';
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(()=>null);
+  const body = await req.json().catch(() => null);
   const raw = body?.url;
-  const format = body?.format;
-  if (typeof raw !== 'string' || raw.length > 2048 || !['mp4','mp3'].includes(format)) {
-    return NextResponse.json({message:'Проверьте ссылку и выбранный формат.'},{status:400});
+
+  if (typeof raw !== 'string' || raw.length > 2048) {
+    return NextResponse.json({message: 'Введите корректную ссылку YouTube.'}, {status: 400});
   }
+
   let parsed: URL;
-  try { parsed = new URL(raw); } catch {
-    return NextResponse.json({message:'Введите корректную ссылку.'},{status:400});
+  try {
+    parsed = new URL(raw.trim());
+  } catch {
+    return NextResponse.json({message: 'Введите полную ссылку, начинающуюся с https://'}, {status: 400});
   }
-  const host = parsed.hostname.toLowerCase().replace(/^www\./,'');
-  if (!['youtube.com','m.youtube.com','youtu.be'].includes(host)) {
-    return NextResponse.json({message:'Поддерживаются ссылки youtube.com и youtu.be.'},{status:400});
+
+  const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+  const isYoutube = host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtu.be' || host === 'youtube-nocookie.com';
+  const hasVideoId = host === 'youtu.be'
+    ? parsed.pathname.length > 1
+    : Boolean(parsed.searchParams.get('v') || parsed.pathname.startsWith('/shorts/') || parsed.pathname.startsWith('/live/'));
+
+  if (parsed.protocol !== 'https:' || !isYoutube || !hasVideoId) {
+    return NextResponse.json({message: 'Ссылка не распознана. Подойдут ссылки на youtube.com/watch, youtu.be, Shorts или трансляции YouTube.'}, {status: 400});
   }
+
   return NextResponse.json({
-    message: format === 'mp4'
-      ? 'Ссылка распознана. Для собственных роликов скачайте исходный файл через YouTube Studio → Контент → меню ролика → Скачать. Сервис пока не выполняет извлечение видео из YouTube.'
-      : 'Ссылка распознана. Для собственных роликов получите исходный файл через YouTube Studio. Конвертация в MP3 пока не подключена.'
+    message: 'Ссылка YouTube распознана. ClipLoad не извлекает видео с YouTube. Если это ваш ролик: откройте YouTube Studio → Контент → меню ⋮ рядом с видео → Скачать. После этого вы сможете выбрать MP4-файл в блоке ниже.',
+    studioUrl: 'https://studio.youtube.com/',
   });
 }
